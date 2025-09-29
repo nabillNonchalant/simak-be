@@ -14,11 +14,13 @@ export async function seedUser() {
   const usersData : Array<Omit<User, 'id'|'createdAt' | 'updatedAt' | 'deletedAt'>> = []
   
   role.forEach((role) => {
-    usersData.push({
+    return usersData.push({
       password: passwordHash,
       name: role.name,
       email: `${role.name.toLowerCase().replace(/ /g, '_')}@app.com`,
       roleId: role.id,
+      nipNisn: null,
+      status: null,
     })
   })
 

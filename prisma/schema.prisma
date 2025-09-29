@@ -18,6 +18,8 @@ model Permissions {
 enum RoleType {
   OTHER
   SUPER_ADMIN
+  GURU
+  KEPALA_SEKOLAH
 }
 
 model Role {
@@ -48,6 +50,8 @@ model User {
   password             String?
   roleId               Int
   role                 Role                  @relation(fields: [roleId], references: [id])
+  nipNisn              String?
+  status               String?               @default("menunggu") //Setujui or menunggu
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   deletedAt            DateTime?
@@ -55,6 +59,12 @@ model User {
   logers               Loger[]
   notifications        NotificationUser[]
   webPushSubscriptions WebPushSubscription[]
+
+  jadwalGuru JadwalGuru[]
+
+  jadwalMurid JadwalMurid[]
+
+  absensiGuru AbsensiGuru[]
 }
 
 model Session {
@@ -129,4 +139,56 @@ model WebPushSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model JadwalGuru {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  tahunAjaran   String?
+  mataPelajaran String?
+  kelas         String?
+  grup          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deleteAt      DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jadwalMurid JadwalMurid[]
+
+  absensiGuru AbsensiGuru[]
+}
+
+model JadwalMurid {
+  id           Int        @id @default(autoincrement())
+  muridId      Int
+  jadwalGuruId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deleteAt     DateTime?
+  user         User       @relation(fields: [muridId], references: [id], onDelete: Cascade)
+  jadwalGuru   JadwalGuru @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
+}
+
+enum StatusAbsensi {
+  HADIR
+  IZIN
+  SAKIT
+  ALFA
+}
+
+model AbsensiGuru {
+  id           Int           @id @default(autoincrement())
+  jadwalGuruId Int
+  userId       Int
+  status       StatusAbsensi
+  type         String?
+  keterangan   String?
+  document     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deleteAt     DateTime?
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jadwalGuru JadwalGuru @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
 }

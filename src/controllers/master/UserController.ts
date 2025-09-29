@@ -32,6 +32,11 @@ const UserController = {
             id: true,
             name: true,
             email: true,
+            password: true,
+            roleId: true,
+            nipNisn: true,
+            status: true,
+            createdAt: true,
             role: {
               select: {
                 name: true,

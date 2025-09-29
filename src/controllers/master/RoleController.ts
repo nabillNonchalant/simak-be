@@ -223,7 +223,7 @@ const RoleController = {
   },
   async deleteRole(req: Request, res: Response) :Promise<Response> {
     const { roleId } = req.params
-    
+    console.log(roleId)
     try {
       const cekRole = await prisma.role.findUnique({
         where: { id: Number(roleId) },

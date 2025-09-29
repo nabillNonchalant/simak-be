@@ -7,6 +7,7 @@ import { generateAccesToken } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
 import { logActivity } from '../../utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
+import { register } from 'module'
 
 const AuthController = {
   register : async (req: Request, res: Response) => {
@@ -191,6 +192,7 @@ const AuthController = {
       return ResponseData.serverError(res, error)
     }
   },
+
 
 }
 
