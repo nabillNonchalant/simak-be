@@ -485,7 +485,7 @@ const RoleController = {
       console.error(error)
       return ResponseData.serverError(res, error)
     }
-  },
+  },  
 }
 
 export default RoleController

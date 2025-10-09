@@ -21,6 +21,8 @@ export async function seedUser() {
       roleId: role.id,
       nipNisn: null,
       status: null,
+      nomerTelepon: null,
+      tanggalLahir: null,
     })
   })
 

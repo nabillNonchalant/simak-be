@@ -34,6 +34,8 @@ const AuthController = {
         data: {
           name: reqBody.name,
           email: reqBody.email,
+          nomerTelepon: reqBody.nomerTelepon,
+          nipNisn:reqBody.nipNisn,
           password: reqBody.password,
           roleId: cekExistingRole.id,
         },
