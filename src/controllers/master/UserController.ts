@@ -28,20 +28,9 @@ const UserController = {
       const [userData, count] = await Promise.all([
         prisma.user.findMany({
           where: whereCondition,
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            password: true,
-            roleId: true,
-            nipNisn: true,
-            status: true,
-            createdAt: true,
-            role: {
-              select: {
-                name: true,
-              },
-            },
+          include: {
+            jadwalGuru: true,
+            jadwalMurid: true,
           },
           skip: page.offset,
           take: page.limit,
