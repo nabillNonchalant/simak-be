@@ -20,7 +20,6 @@ export const RegisterSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal harus 6 karakter'),
   confirmPassword: z.string(),
-  roleId: z.number().int('Role ID harus berupa angka integer'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Konfirmasi password tidak sesuai',
   path: ['confirmPassword'],

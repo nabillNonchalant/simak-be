@@ -7,7 +7,6 @@ import { generateAccesToken } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
 import { logActivity } from '../../utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
-import { register } from 'module'
 
 const AuthController = {
   register : async (req: Request, res: Response) => {
@@ -20,8 +19,8 @@ const AuthController = {
     }
     try {
 
-      const cekExistingRole = await prisma.role.findUnique({
-        where: { id: reqBody.roleId },
+      const cekExistingRole = await prisma.role.findFirst({
+        where: { name: 'Guru' },
       })
 
       if (!cekExistingRole) {
@@ -34,6 +33,9 @@ const AuthController = {
         data: {
           name: reqBody.name,
           email: reqBody.email,
+          nomerTelepon: reqBody.nomerTelepon,
+          tanggalLahir: new Date(reqBody.tanggalLahir),
+          nipNisn:reqBody.nipNisn,
           password: reqBody.password,
           roleId: cekExistingRole.id,
         },
@@ -79,6 +81,7 @@ const AuthController = {
         name: userData.name as string,
         role: userData.role.name,
         roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER',
+        
       }
 
       const token = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
