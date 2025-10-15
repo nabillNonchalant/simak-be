@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import { Pagination } from '@/utilities/Pagination'
 import prisma from '@/config/database'
 import { validateInput } from '@/utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '@/schema/UserSchema'
@@ -35,6 +34,29 @@ const ScheduleTeacherController = {
       return ResponseData.serverError(res, error)
     }
   },
+
+  getJadwalGuruById : async (req: Request, res: Response): Promise<any> => {
+    try {
+      const userId = parseInt(req.params.id as string)
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return ResponseData.notFound(res, 'Jadwal not found')
+      }
+
+      return ResponseData.ok(res, userData, 'Success get jadwal by id')
+    } catch (error: any) {
+      return ResponseData.serverError(res, error)
+    }
+
+
+
+  
+  },
+
+
 }
 
 export default ScheduleTeacherController
