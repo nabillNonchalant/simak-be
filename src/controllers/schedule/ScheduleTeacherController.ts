@@ -1,62 +1,119 @@
 import { Request, Response } from 'express'
 import prisma from '@/config/database'
-import { validateInput } from '@/utilities/ValidateHandler'
-import { UserSchemaForCreate, UserSchemaForUpdate } from '@/schema/UserSchema'
-import { hashPassword } from '@/utilities/PasswordHandler'
-import { getIO } from '@/config/socket'
-import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
-import redisClient from '@/config/redis'
-import { JadwalGuru } from '@prisma/client'
 
 const ScheduleTeacherController = {
-  getJadwalGuru : async (req: Request, res: Response): Promise<any> => {
+
+  getJadwalGuru: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
 
-      const whereCondition = {} as any
-
-      whereCondition.userId = userLogin?.id
-
       const scheduleTeacher = await prisma.jadwalGuru.findMany({
-        where: whereCondition,
+        where: { userId: userLogin?.id },
       })
 
-      if (!scheduleTeacher) {
-        return ResponseData.notFound(res, 'Schedule Not Found')
-
+      if (scheduleTeacher.length === 0) {
+        return ResponseData.notFound(res, 'Schedule not found')
       }
 
-      return ResponseData.ok(res, scheduleTeacher, 'Success Get Data')
-
-
+      return ResponseData.ok(res, scheduleTeacher, 'Success get schedule list')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
   },
 
-  getJadwalGuruById : async (req: Request, res: Response): Promise<any> => {
+
+  getJadwalGuruById: async (req: Request, res: Response) => {
     try {
-      const userId = parseInt(req.params.id as string)
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
+      const id = Number(req.params.id)
+      if (isNaN(id)) return ResponseData.badRequest(res, 'Invalid ID')
+
+      const jadwal = await prisma.jadwalGuru.findUnique({
+        where: { id },
       })
 
-      if (!userData) {
+      if (!jadwal) {
         return ResponseData.notFound(res, 'Jadwal not found')
       }
 
-      return ResponseData.ok(res, userData, 'Success get jadwal by id')
+      return ResponseData.ok(res, jadwal, 'Success get jadwal by id')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
-
-
-
-  
   },
 
 
+  createJadwalGuru: async (req: Request, res: Response) => {
+    try {
+      const userLogin = req.user as jwtPayloadInterface
+      const { tahunAjaran, mataPelajaran, kelas, grup } = req.body
+
+      if (!tahunAjaran || !mataPelajaran || !kelas) {
+        return ResponseData.badRequest(res, 'Missing required fields')
+      }
+
+      const newJadwal = await prisma.jadwalGuru.create({
+        data: {
+          tahunAjaran,
+          mataPelajaran,
+          kelas,
+          grup,
+          userId: userLogin.id,
+        },
+      })
+
+      return ResponseData.created(res, newJadwal, 'Jadwal created successfully')
+    } catch (error: any) {
+      return ResponseData.serverError(res, error)
+    }
+  },
+
+
+  updateJadwalGuru: async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id)
+      if (isNaN(id)) return ResponseData.badRequest(res, 'Invalid ID')
+
+      const existing = await prisma.jadwalGuru.findUnique({ where: { id } })
+      if (!existing) {
+        return ResponseData.notFound(res, 'Jadwal not found')
+      }
+
+      const { tahunAjaran, mataPelajaran, kelas, grup } = req.body
+
+      const updated = await prisma.jadwalGuru.update({
+        where: { id },
+        data: { tahunAjaran, mataPelajaran, kelas, grup },
+      })
+
+      return ResponseData.ok(res, updated, 'Jadwal updated successfully')
+    } catch (error: any) {
+      return ResponseData.serverError(res, error)
+    }
+  },
+
+
+  deleteJadwalGuru: async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id)
+      if (isNaN(id)) return ResponseData.badRequest(res, 'Invalid ID')
+
+      const existing = await prisma.jadwalGuru.findUnique({ where: { id } })
+      if (!existing) {
+        return ResponseData.notFound(res, 'Jadwal not found')
+      }
+
+
+      const deleted = await prisma.jadwalGuru.update({
+        where: { id },
+        data: { deleteAt: new Date() },
+      })
+
+      return ResponseData.ok(res, deleted, 'Jadwal deleted successfully')
+    } catch (error: any) {
+      return ResponseData.serverError(res, error)
+    }
+  },
 }
 
 export default ScheduleTeacherController
