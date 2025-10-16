@@ -1,13 +1,6 @@
 import { Request, Response } from 'express'
 import prisma from '@/config/database'
-import { validateInput } from '@/utilities/ValidateHandler'
-import { UserSchemaForCreate, UserSchemaForUpdate } from '@/schema/UserSchema'
-import { hashPassword } from '@/utilities/PasswordHandler'
-import { getIO } from '@/config/socket'
-import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
-import redisClient from '@/config/redis'
-import { JadwalGuru } from '@prisma/client'
 
 const ScheduleTeacherController = {
   getJadwalGuru : async (req: Request, res: Response): Promise<any> => {
@@ -55,6 +48,7 @@ const ScheduleTeacherController = {
 
   
   },
+  
 
 
 }
