@@ -15,6 +15,7 @@ import { LogRouter } from './LogRouter'
 import { AuthMiddleware } from '@/middleware/AuthMiddleware'
 import { getBuildInfo } from '@/utilities/GetBuildInfo'
 import { RoleRouter } from './master/RoleRouter'
+import { ScheduleTeacherRouter } from './schedule/scheduleTeacherRoutes'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 
 
@@ -68,4 +69,5 @@ export const appRouter = async function (app: Express): Promise<void> {
   // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
   app.use(CONFIG.apiUrl + 'master/role', RoleRouter())
+  app.use(CONFIG.apiUrl + 'schedule', ScheduleTeacherRouter())
 }
