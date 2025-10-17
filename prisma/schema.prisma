@@ -67,6 +67,8 @@ model User {
   jadwalMurid JadwalMurid[]
 
   absensiGuru AbsensiGuru[]
+
+  AbsensiMurid AbsensiMurid[]
 }
 
 model Session {
@@ -173,6 +175,8 @@ model JadwalMurid {
   deleteAt     DateTime?
   user         User       @relation(fields: [muridId], references: [id], onDelete: Cascade)
   jadwalGuru   JadwalGuru @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
+
+  AbsensiMurid AbsensiMurid[]
 }
 
 enum StatusAbsensi {
@@ -196,4 +200,20 @@ model AbsensiGuru {
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jadwalGuru JadwalGuru @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
+}
+
+model AbsensiMurid {
+  id           Int           @id @default(autoincrement())
+  jadwalGuruId Int
+  muridId       Int
+  status       StatusAbsensi
+  type         String?
+  keterangan   String?
+  document     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deleteAt     DateTime?
+
+  user       User       @relation(fields: [muridId], references: [id], onDelete: Cascade)
+  jadwalMurid JadwalMurid @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
 }
