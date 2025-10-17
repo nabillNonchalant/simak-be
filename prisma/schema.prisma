@@ -165,6 +165,9 @@ model JadwalMurid {
   id           Int        @id @default(autoincrement())
   muridId      Int
   jadwalGuruId Int
+  namaLengkap  String?
+  kelas        String?
+  kelamin      String?  
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   deleteAt     DateTime?
