@@ -169,7 +169,7 @@ model JadwalMurid {
   jadwalGuruId Int
   namaLengkap  String?
   kelas        String?
-  kelamin      String?  
+  kelamin      String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   deleteAt     DateTime?
