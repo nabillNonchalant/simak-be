@@ -8,7 +8,7 @@ export const StudentScheduleRouter = (): Router => {
   router.get('/:id', StudentScheduleController.getJadwalMuridById)
   router.post('/create', StudentScheduleController.createJadwalMurid)
   router.put('/update/:id',StudentScheduleController.updateJadwalMurid)
-  router.delete('/:id/delete  ', StudentScheduleController.deleteJadwalMurid)
+  router.delete('/:id/delete', StudentScheduleController.deleteJadwalMurid)
 
   return router
 
