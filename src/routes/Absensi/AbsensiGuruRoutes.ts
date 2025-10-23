@@ -4,7 +4,7 @@ import { Router } from 'express'
 export const AbsensiGuruRouter = (): Router => {
   const router = Router()
 
-  router.get('/', AbsensiGuruController.getAbsensiGuru)
+  router.get('/', AbsensiGuruController.getAllAbsensiguru)
   router.get('/:id', AbsensiGuruController.getAbsensiGuruById)
   router.post('/create', AbsensiGuruController.createAbsensiGuru)
   router.put('/update/:id', AbsensiGuruController.updateAbsensiGuru)

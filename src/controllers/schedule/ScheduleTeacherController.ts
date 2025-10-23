@@ -1,23 +1,44 @@
 import { Request, Response } from 'express'
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities/Response'
+import { Pagination } from '@/utilities/Pagination'
 
 const ScheduleTeacherController = {
 
-  getJadwalGuru: async (req: Request, res: Response) => {
+  getAllJadwal: async (req: Request, res: Response): Promise<any> => {
     try {
-      const userLogin = req.user as jwtPayloadInterface
+      const page = new Pagination(
+        parseInt(req.query.page as string) || 1,
+        parseInt(req.query.limit as string) || 100,
+      )
 
-      const scheduleTeacher = await prisma.jadwalGuru.findMany({
-        where: { userId: userLogin?.id },
+      const whereCondition: any = { deleteAt: null }
+
+      const jadwalGuru = await prisma.jadwalGuru.findMany({
+        where: whereCondition,
+        include: {
+          absensiGuru: true,
+        },
+        skip: page.offset,
+        take: page.limit,
+        orderBy: {
+          id: 'desc',
+        },
       })
 
-      if (scheduleTeacher.length === 0) {
-        return ResponseData.notFound(res, 'Schedule not found')
-      }
+      const total = await prisma.masterClass.count({
+        where: whereCondition,
+      })
 
-      return ResponseData.ok(res, scheduleTeacher, 'Success get schedule list')
+      return ResponseData.ok(res, {
+        message: 'Berhasil mengambil semua data jadwal guru',
+        page: page.paginate({ count: total, rows: jadwalGuru }),
+
+        rows: jadwalGuru,
+
+      })
     } catch (error: any) {
+      console.error('Error getAllJadwal:', error)
       return ResponseData.serverError(res, error)
     }
   },

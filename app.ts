@@ -15,6 +15,8 @@ import handleSocketEvents from '@/socket/EventHandler'
 import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
 import { initWebPush } from '@/config/webPush'
+import { MasterClassRouter } from './src/routes/masterclass/MasterClassRoute'
+
 
 
 process.env.TZ = 'Asia/Jakarta'
@@ -42,6 +44,7 @@ app.use(cors({ origin: true, credentials: true }))
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(passport.initialize())
+app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*')
