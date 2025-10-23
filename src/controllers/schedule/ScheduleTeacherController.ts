@@ -47,9 +47,9 @@ const ScheduleTeacherController = {
   createJadwalGuru: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
-      const { tahunAjaran, mataPelajaran, kelas, grup } = req.body
+      const { tahunAjaran, mataPelajaran, classId } = req.body
 
-      if (!tahunAjaran || !mataPelajaran || !kelas) {
+      if (!tahunAjaran || !mataPelajaran || !classId) {
         return ResponseData.badRequest(res, 'Missing required fields')
       }
 
@@ -57,8 +57,7 @@ const ScheduleTeacherController = {
         data: {
           tahunAjaran,
           mataPelajaran,
-          kelas,
-          grup,
+          classId,
           userId: userLogin.id,
         },
       })
@@ -80,11 +79,11 @@ const ScheduleTeacherController = {
         return ResponseData.notFound(res, 'Jadwal not found')
       }
 
-      const { tahunAjaran, mataPelajaran, kelas, grup } = req.body
+      const { tahunAjaran, mataPelajaran, classId } = req.body
 
       const updated = await prisma.jadwalGuru.update({
         where: { id },
-        data: { tahunAjaran, mataPelajaran, kelas, grup },
+        data: { tahunAjaran, mataPelajaran, classId },
       })
 
       return ResponseData.ok(res, updated, 'Jadwal updated successfully')
