@@ -18,6 +18,7 @@ import { RoleRouter } from './master/RoleRouter'
 import { ScheduleTeacherRouter } from './schedule/scheduleTeacherRoutes'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { AbsensiGuruRouter } from './Absensi/AbsensiGuruRoutes'
+import { StudentScheduleRouter } from './schedule/studentScheduleRoutes'
 import { AbsensiMuridRouter } from './Absensi/AbsensiMuridRoute'
 import { MasterClassRouter } from './masterclass/MasterClassRoute'
 
