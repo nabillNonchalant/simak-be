@@ -30,7 +30,6 @@ const UserController = {
           where: whereCondition,
           include: {
             jadwalGuru: true,
-            jadwalMurid: true,
           },
           skip: page.offset,
           take: page.limit,
