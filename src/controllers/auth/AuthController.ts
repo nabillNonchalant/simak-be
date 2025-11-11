@@ -26,6 +26,28 @@ const AuthController = {
       if (!cekExistingRole) {
         return ResponseData.badRequest(res, 'Role not found')
       }
+
+
+      const cekEmail = await prisma.user.findFirst({
+        where: {  
+          email: reqBody.email,
+        },
+      })
+
+      if(cekEmail){
+        return ResponseData.badRequest(res, 'Email sudah digunakan')
+
+      }
+
+      const cekNomerTelepon = await prisma.user.findFirst({
+        where: {
+          nomerTelepon: reqBody.nomerTelepon,
+        },
+      })
+
+      if(cekNomerTelepon){
+        return ResponseData.badRequest(res, 'Nomer Telepon sudah digunakan')
+      }
       
       reqBody.password = await hashPassword(reqBody.password)
 
@@ -80,7 +102,7 @@ const AuthController = {
         id: userData.id,
         name: userData.name as string,
         role: userData.role.name,
-        roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER',
+        roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER' ,
         
       }
 
