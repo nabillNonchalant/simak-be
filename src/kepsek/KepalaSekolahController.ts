@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import prisma from '@/config/database'
-import { logActivity } from '@/utilities/LogActivity'
-import { ResponseData } from '@/utilities/Response'
-import { jwtPayloadInterface } from '@/types/jwtpayloadinterface'
+import prisma from '../config/database'
+import { logActivity } from '../utilities/LogActivity'
+import { ResponseData } from '../utilities/Response'
+import { jwtPayloadInterface } from '../types/jwtpayloadinterface'
 
 const KepalaSekolahController = {
   getPendingUsers: async (req: Request, res: Response) => {
@@ -45,7 +45,7 @@ const KepalaSekolahController = {
       })
 
       await logActivity(userLogin.id, 'UPDATE', `Menyetujui akun ${user.email}`)
-      return ResponseData.ok(res, user, 'Akun berhasil diverifikasi')
+      return ResponseData.ok(res, user, 'Akun berhasil diferivikasi')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
