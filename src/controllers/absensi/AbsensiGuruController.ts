@@ -1,25 +1,47 @@
 import { Request, Response } from 'express'
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities/Response'
+import { Pagination } from '@/utilities/Pagination'
 
 const AbsensiGuruController = {
-  getAbsensiGuru: async (req: Request, res: Response) => {
+  getAllAbsensiguru: async (req: Request, res: Response): Promise<any> => {
     try {
-      const userLogin = req.user as jwtPayloadInterface
+      const page = new Pagination(
+        parseInt(req.query.page as string) || 1,
+        parseInt(req.query.limit as string) || 100,
+      )
+
+      const whereCondition: any = { deleteAt: null }
 
       const absensiGuru = await prisma.absensiGuru.findMany({
-        where: { userId: userLogin?.id },
+        where: whereCondition,
+        include: {
+          user: true,
+        },
+        skip: page.offset,
+        take: page.limit,
+        orderBy: {
+          id: 'desc',
+        },
       })
 
-      if (absensiGuru.length === 0) {
-        return ResponseData.notFound(res, 'Absensi not found')
-      }
+      const total = await prisma.absensiGuru.count({
+        where: whereCondition,
+      })
 
-      return ResponseData.ok(res, absensiGuru, 'Success get absensi list')
+      return ResponseData.ok(res, {
+        message: 'Berhasil mengambil semua data absensi murid',
+        page: page.paginate({ count: total, rows: absensiGuru }),
+
+        rows: absensiGuru,
+
+      })
     } catch (error: any) {
+      console.error('Error getAllAbsensi:', error)
       return ResponseData.serverError(res, error)
     }
   },
+
 
   getAbsensiGuruById: async (req: Request, res: Response) => {
     try {
@@ -48,6 +70,15 @@ const AbsensiGuruController = {
       if (!type || !keterangan || !document || !status) {
         return ResponseData.badRequest(res, 'Missing required fields')
       }
+
+      const schedule = await prisma.jadwalGuru.findFirst({
+        where:{
+          id: req.body.jadwalGuruId as number,
+        },
+      })
+
+      if(!schedule){
+        return ResponseData.notFound(res, 'Jadwal Not Found')}
 
       const newAbsensi = await prisma.absensiGuru.create({
         data: {

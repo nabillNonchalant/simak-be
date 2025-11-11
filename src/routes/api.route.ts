@@ -19,6 +19,8 @@ import { ScheduleTeacherRouter } from './schedule/scheduleTeacherRoutes'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { AbsensiGuruRouter } from './Absensi/AbsensiGuruRoutes'
 import { AbsensiMuridRouter } from './Absensi/AbsensiMuridRoute'
+import { MasterClassRouter } from './masterclass/MasterClassRoute'
+
 
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
@@ -74,5 +76,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'schedule', ScheduleTeacherRouter())
   app.use(CONFIG.apiUrl + 'teacher', AbsensiGuruRouter())
   app.use(CONFIG.apiUrl + 'murid', AbsensiMuridRouter())
-  
+  app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
 }
+
+

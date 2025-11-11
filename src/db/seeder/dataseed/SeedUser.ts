@@ -23,6 +23,7 @@ export async function seedUser() {
       status: null,
       nomerTelepon: null,
       tanggalLahir: null,
+      gender: null,
     })
   })
 
