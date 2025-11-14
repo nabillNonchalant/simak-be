@@ -20,15 +20,13 @@ import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { AbsensiGuruRouter } from './Absensi/AbsensiGuruRoutes'
 import { AbsensiMuridRouter } from './Absensi/AbsensiMuridRoute'
 import { MasterClassRouter } from './masterclass/MasterClassRoute'
-
-
+import KepalaSekolahRouter from './kepsek/KepalaSekolahRoutes'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
 //   allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
 //   // saveToBucket: CONFIG.saveToBucket,
 // })
-
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
   maxFileSize : 10 * 1024 * 1024, // 10MB
@@ -70,13 +68,14 @@ export const appRouter = async function (app: Express): Promise<void> {
   // log route
   app.use(CONFIG.apiUrl + 'log', LogRouter())
 
-  // master route
+
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
   app.use(CONFIG.apiUrl + 'master/role', RoleRouter())
   app.use(CONFIG.apiUrl + 'schedule', ScheduleTeacherRouter())
   app.use(CONFIG.apiUrl + 'teacher', AbsensiGuruRouter())
   app.use(CONFIG.apiUrl + 'murid', AbsensiMuridRouter())
   app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
+  app.use(CONFIG.apiUrl + 'kepsek', KepalaSekolahRouter)
 }
 
 

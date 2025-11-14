@@ -1,17 +1,18 @@
 import { NextFunction, Response, Request } from 'express'
-import { verifyAccesToken } from '../utilities/JwtHanldler'
-import { CONFIG } from '../config'
-import prisma from '../config/database'
+import jwt from 'jsonwebtoken'
+import prisma from '@/config/database'
+import { CONFIG } from '@/config'
 import { ResponseData } from '@/utilities/Response'
+import { verifyAccesToken } from '@/utilities/JwtHanldler'
+import { jwtPayloadInterface } from '@/types/jwtpayloadinterface'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: jwtPayloadInterface;
+    user?: jwtPayloadInterface
   }
 }
 
-
-export const AuthMiddleware = async function (req: Request, res: Response, next: NextFunction) {
+export const AuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization']
   const token = authHeader ? authHeader.split(' ')[1] : undefined
 
@@ -20,27 +21,42 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
   }
 
   try {
-
-    const cekSesionInDb = await prisma.session.findUnique({
-      where: {
-        token: token,
-      },
+    const session = await prisma.session.findUnique({
+      where: { token },
     })
 
-    if (!cekSesionInDb) {
+    if (!session) {
       return ResponseData.unauthorized(res, 'Unauthorized - Invalid session')
     }
 
-    const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
+    const decoded = verifyAccesToken(token, CONFIG.secret.jwtSecret)
 
-    if (!decode) {
+    if (!decoded) {
       return ResponseData.unauthorized(res, 'Unauthorized - Invalid token')
     }
 
-    req.user = decode
+    req.user = decoded as unknown as jwtPayloadInterface
+
     next()
-    
   } catch (error: any) {
     return ResponseData.unauthorized(res, `Unauthorized - ${error.message || 'An error occurred'}`)
+  }
+}
+
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return ResponseData.unauthorized(res, 'Token tidak ditemukan')
+  }
+
+  const token = authHeader.split(' ')[1]
+
+  try {
+    const decoded = jwt.verify(token, CONFIG.secret.jwtSecret) as jwtPayloadInterface
+    req.user = decoded
+    next()
+  } catch (error) {
+    return ResponseData.unauthorized(res, 'Token tidak valid atau sudah kedaluwarsa')
   }
 }
