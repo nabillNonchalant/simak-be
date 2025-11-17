@@ -26,7 +26,7 @@ const ScheduleTeacherController = {
         },
       })
 
-      const total = await prisma.masterClass.count({
+      const total = await prisma.jadwalGuru.count({
         where: whereCondition,
       })
 
