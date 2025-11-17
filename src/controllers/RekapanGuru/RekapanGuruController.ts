@@ -3,12 +3,8 @@ import { getRekapanGuruService } from '@/services/GuruService/GuruService'
 
 export const getRekapanGuru = async (req: Request, res: Response) => {
   try {
-    const userId = Number(req.params.id)
+    const userId = Number(req.query.id)
     const mapel = req.query.mapel as string | undefined
-
-    if (!userId) {
-      return res.status(400).json({ message: 'userId wajib diisi' })
-    }
 
     const result = await getRekapanGuruService(userId, mapel)
 

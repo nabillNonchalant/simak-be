@@ -2,8 +2,14 @@ import prisma from '@/config/database'
 
 export const getRekapanGuruService = async (userId: number, mapel?: string) => {
 
+  const whereCondition: any = { deleteAt: null }
+
+  if(userId){
+    whereCondition.id = Number(userId)
+  }
+
   const guru = await prisma.user.findUnique({
-    where: { id: userId },
+    where: whereCondition,
     select: {
       id: true,
       name: true,

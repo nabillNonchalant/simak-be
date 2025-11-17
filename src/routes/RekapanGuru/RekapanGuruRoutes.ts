@@ -3,6 +3,6 @@ import { getRekapanGuru } from '@/controllers/RekapanGuru/RekapanGuruController'
 
 const router = Router()
 
-router.get('/guru/:id', getRekapanGuru)
+router.get('/guru', getRekapanGuru)
 
 export default router
