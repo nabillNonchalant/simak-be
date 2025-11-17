@@ -1,49 +1,64 @@
 import prisma from '@/config/database'
+import { Pagination } from '@/utilities/Pagination'
 
-export const getRekapanGuruService = async (userId: number, mapel?: string) => {
+export const getRekapanGuruService = async (page: Pagination, id?: number) => {
 
-  const whereCondition: any = { deleteAt: null }
-
-  if(userId){
-    whereCondition.id = Number(userId)
+  const whereCondition: any = {
+    deletedAt: null,
+    roleId: 3,
   }
 
-  const guru = await prisma.user.findUnique({
-    where: whereCondition,
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      gender: true,
-      nipNisn: true,
-    },
-  })
-
-  if (!guru) {
-    return { notFound: true }
+  // Jika ada filter ID → tambahkan ke where
+  if (id) {
+    whereCondition.id = id
   }
 
-  const summary = await prisma.absensiGuru.groupBy({
-    by: ['status'],
-    _count: { status: true },
-    where: {
-      userId,
-      deleteAt: null,
-      jadwalGuru: {
-        mataPelajaran: mapel || undefined,
+  const [guruList, count] = await Promise.all([
+    prisma.user.findMany({
+      where: whereCondition,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        gender: true,
+        nipNisn: true,
+        absensiGuru: {
+          select: {
+            status: true,
+            createdAt: true,
+          },
+        },
       },
-    },
-  })
+      skip: page.offset,
+      take: page.limit,
+      orderBy: { id: 'desc' },
+    }),
 
-  const formatSummary = {
-    hadir: summary.find(s => s.status === 'HADIR')?._count.status || 0,
-    izin: summary.find(s => s.status === 'IZIN')?._count.status || 0,
-    sakit: summary.find(s => s.status === 'SAKIT')?._count.status || 0,
-    alfa: summary.find(s => s.status === 'ALFA')?._count.status || 0,
-  }
+    prisma.user.count({
+      where: whereCondition,
+    }),
+  ])
+
+  const formatted = guruList.map((guru: any) => {
+    const summary = {
+      hadir: guru.absensiGuru.filter((a: any) => a.status === 'HADIR').length,
+      izin: guru.absensiGuru.filter((a: any) => a.status === 'IZIN').length,
+      sakit: guru.absensiGuru.filter((a: any) => a.status === 'SAKIT').length,
+      alfa: guru.absensiGuru.filter((a: any) => a.status === 'ALFA').length,
+    }
+
+    return {
+      id: guru.id,
+      name: guru.name,
+      email: guru.email,
+      gender: guru.gender,
+      nipNisn: guru.nipNisn,
+      statistik: summary,
+    }
+  })
 
   return {
-    guru,
-    statistik: formatSummary,
+    count,
+    rows: formatted,
   }
 }

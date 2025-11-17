@@ -1,29 +1,28 @@
 import { Request, Response } from 'express'
+import { Pagination } from '@/utilities/Pagination'
+import { ResponseData } from '@/utilities/Response'
 import { getRekapanGuruService } from '@/services/GuruService/GuruService'
 
-export const getRekapanGuru = async (req: Request, res: Response) => {
+export const getAllRekapanGuruController = async (req: Request, res: Response) => {
   try {
-    const userId = Number(req.query.id)
-    const mapel = req.query.mapel as string | undefined
+    const page = new Pagination(
+      Number(req.query.page),
+      Number(req.query.limit),
+    )
 
-    const result = await getRekapanGuruService(userId, mapel)
+    // Ambil filter id jika ada
+    const id = req.query.id ? Number(req.query.id) : undefined
 
-    if ('notFound' in result) {
-      return res.status(404).json({ message: 'Guru tidak ditemukan' })
-    }
+    // Kirim 2 parameter (page, id)
+    const result = await getRekapanGuruService(page, id)
 
-    return res.status(200).json({
-      status: true,
-      message: 'Berhasil mengambil rekapan guru',
-      data: result,
-    })
+    return ResponseData.ok(
+      res,
+      page.paginate(result),
+      'Success get all rekapan guru',
+    )
 
-  } catch (error) {
-    console.log('Error getRekapanGuru:', error)
-    return res.status(500).json({
-      status: false,
-      message: 'Terjadi kesalahan server',
-      error,
-    })
+  } catch (error: any) {
+    return ResponseData.serverError(res, error)
   }
 }
