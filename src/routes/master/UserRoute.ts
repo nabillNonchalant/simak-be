@@ -11,6 +11,7 @@ export const UserRouter = (): Router => {
   router.delete('/:id/soft', UserController.softDeleteUser)
   router.patch('/:id/restore', UserController.restoreUser)
   router.delete('/:id/hard', UserController.deleteUser)
+  router.patch('/:id/status', UserController.updateStatus)
 
   return router
 }

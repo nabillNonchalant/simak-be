@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken'
 
 
 
-export const generateAccesToken = function (
-  payload: jwtPayloadInterface,
-  secretToken: string,
+export const generateAccesToken = (
+  payload: object, // ubah dari string → object
+  secret: string,
   expiresIn: number,
-): string {
-  return jwt.sign(payload, secretToken, { expiresIn })
+): string => {
+  return jwt.sign(payload, secret, { expiresIn })
 }
 
 export const verifyAccesToken = function (

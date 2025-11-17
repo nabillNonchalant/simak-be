@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import KepalaSekolahController from '@/controllers/kepsek/KepalaSekolahController'
-import { AuthMiddleware } from '@/middleware/AuthMiddleware'
+import { authorizeRole } from '../../middleware/AuthorizeRole'
+import  KepalaSekolahController  from '@/controllers/kepsek/KepalaSekolahController'
 
-const KepalaSekolahRouter = Router()
+const router = Router()
 
-// semua endpoint hanya bisa diakses oleh kepala sekolah
-KepalaSekolahRouter.get('/pending', AuthMiddleware, KepalaSekolahController.getPendingUsers)
-KepalaSekolahRouter.post('/approve/:userId', AuthMiddleware, KepalaSekolahController.approveUser)
-KepalaSekolahRouter.post('/reject/:userId', AuthMiddleware, KepalaSekolahController.rejectUser)
+// hanya role KEPALA_SEKOLAH yang boleh akses
+router.get('/pending', authorizeRole(['KEPALA_SEKOLAH']), KepalaSekolahController.getPendingUsers)
+router.post('/approve/:id', authorizeRole(['KEPALA_SEKOLAH']), KepalaSekolahController.approveUser)
+router.post('/reject/:id', authorizeRole(['KEPALA_SEKOLAH']), KepalaSekolahController.rejectUser)
 
-export default KepalaSekolahRouter
+export default router

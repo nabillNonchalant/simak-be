@@ -102,7 +102,7 @@ const AuthController = {
         id: userData.id,
         name: userData.name as string,
         role: userData.role.name,
-        roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER' ,
+        roleType: userData.role.roleType as 'SUPER_ADMIN' | 'OTHER' | 'GURU' | 'KEPALA_SEKOLAH',
         
       }
 

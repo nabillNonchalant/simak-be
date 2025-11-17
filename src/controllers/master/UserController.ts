@@ -220,6 +220,28 @@ const UserController = {
       return ResponseData.serverError(res, error)
     }
   },
+
+  updateStatus: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const userId = parseInt(req.params.id as string)
+
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return ResponseData.notFound(res, 'User not found')
+      } 
+      const updateStatus = await prisma.user.update({
+        where: { id: userId },
+        data: { status: userData.status === 'menunggu' ? 'setujui' : 'menunggu' },
+      })
+      return ResponseData.ok(res, updateStatus, 'Success')
+    } catch (error: any) {
+      return ResponseData.serverError(res, error)
+    }
+  },
+
 }
 
 export default UserController
