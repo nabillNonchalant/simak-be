@@ -7,8 +7,8 @@ export const getDashboard = async (req: Request, res: Response) => {
     // ==== COUNT DATA ====
     const [totalSiswaSiswi, totalSiswa, totalSiswi, totalGuru] = await Promise.all([
       prisma.user.count({ where: { role: { roleType: RoleType.OTHER } } }),
-      prisma.user.count({ where: { gender: 'L', role: { roleType: RoleType.OTHER } } }),
-      prisma.user.count({ where: { gender: 'P', role: { roleType: RoleType.OTHER } } }),
+      prisma.user.count({ where: { gender: 'Laki-laki', role: { roleType: RoleType.OTHER } } }),
+      prisma.user.count({ where: { gender: 'Perempuan', role: { roleType: RoleType.OTHER } } }),
       prisma.user.count({ where: { role: { roleType: RoleType.GURU } } }),
     ])
 
