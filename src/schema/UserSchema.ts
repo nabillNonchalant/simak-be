@@ -9,9 +9,9 @@ export const UserSchemaForCreate = z.object({
 
 
 export const UserSchemaForUpdate = z.object({
-  name: z.string(),
-  //   email: z.string().email(),
-  roleId: z.number(),
+  name: z.string().optional(),
+  nomerTelepon: z.string().nullable().optional(),
+  gender: z.string().optional().nullable(),
 })
 
 
