@@ -23,6 +23,7 @@ const UserController = {
 
       const whereCondition = {
         deletedAt: null,
+        roleId: 3,
       }
 
       const [userData, count] = await Promise.all([
