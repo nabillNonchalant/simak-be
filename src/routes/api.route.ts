@@ -22,6 +22,8 @@ import { StudentScheduleRouter } from './schedule/studentScheduleRoutes'
 import { AbsensiMuridRouter } from './Absensi/AbsensiMuridRoute'
 import { MasterClassRouter } from './masterclass/MasterClassRoute'
 import KepalaSekolahRouter from './kepsek/KepalaSekolahRoutes'
+import dashboardRouter from './Dashboard/DasboardRoutes'
+import guruRouter from './RekapanGuru/RekapanGuruRoutes'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
@@ -77,6 +79,8 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'murid', AbsensiMuridRouter())
   app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
   app.use(CONFIG.apiUrl + 'kepsek', KepalaSekolahRouter)
+  app.use(CONFIG.apiUrl + 'dashboard', dashboardRouter)
+  app.use(CONFIG.apiUrl + 'rekapan', guruRouter)
 }
 
 

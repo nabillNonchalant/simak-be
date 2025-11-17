@@ -112,6 +112,40 @@ const UserController = {
     }
   },
 
+  // updateUser: async (req: Request, res: Response): Promise<any> => {
+  //   const userId = parseInt(req.params.id as string)
+  //   const reqBody = req.body
+
+  //   const validationResult = validateInput(UserSchemaForUpdate, reqBody)
+
+  //   if (!validationResult.success) {
+  //     return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
+  //   }
+  //   try {
+
+  //     const userData = await prisma.user.findUnique({
+  //       where: { id: userId },
+  //     })
+
+  //     if (!userData) {
+  //       return ResponseData.notFound(res, 'User not found')
+  //     }
+
+  //     const updatedUserData = await prisma.user.update({
+  //       where: { id: userId },
+  //       data: validationResult.data!,
+  //     })
+
+  //     const userLogin = req.user as jwtPayloadInterface
+  //     await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
+  //     await redisClient.del(`user_permissions:${userData.id}`)
+
+  //     return ResponseData.ok(res, updatedUserData, 'Success')
+  //   } catch (error: any) {
+  //     return ResponseData.serverError(res, error)
+  //   }
+  // },
+ 
   updateUser: async (req: Request, res: Response): Promise<any> => {
     const userId = parseInt(req.params.id as string)
     const reqBody = req.body
@@ -121,8 +155,8 @@ const UserController = {
     if (!validationResult.success) {
       return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
-    try {
 
+    try {
       const userData = await prisma.user.findUnique({
         where: { id: userId },
       })
@@ -131,9 +165,31 @@ const UserController = {
         return ResponseData.notFound(res, 'User not found')
       }
 
+      // ============================================
+      // 🔥 FIX KONVERSI TANGGAL
+      // ============================================
+      const dataToUpdate: any = { ...validationResult.data }
+
+      if (dataToUpdate.tanggalLahir) {
+        const raw = dataToUpdate.tanggalLahir
+
+        // Cek format DD-MM-YYYY
+        const indoFormat = /^(\d{2})-(\d{2})-(\d{4})$/
+
+        if (indoFormat.test(raw)) {
+          const [_, dd, mm, yyyy] = raw.match(indoFormat)!
+          dataToUpdate.tanggalLahir = new Date(`${yyyy}-${mm}-${dd}`)
+        } else {
+        // Jika sudah ISO, langsung konversi
+          const parsed = new Date(raw)
+          dataToUpdate.tanggalLahir = isNaN(parsed.getTime()) ? null : parsed
+        }
+      }
+      // ============================================
+
       const updatedUserData = await prisma.user.update({
         where: { id: userId },
-        data: validationResult.data!,
+        data: dataToUpdate,
       })
 
       const userLogin = req.user as jwtPayloadInterface
@@ -145,6 +201,7 @@ const UserController = {
       return ResponseData.serverError(res, error)
     }
   },
+
   softDeleteUser: async (req: Request, res: Response): Promise<any> => {
     try {
       const userId = parseInt(req.params.id as string)
