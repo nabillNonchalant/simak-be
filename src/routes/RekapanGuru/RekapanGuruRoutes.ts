@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { getRekapanGuru } from '@/controllers/RekapanGuru/RekapanGuruController'
+import { getAllRekapanGuruController } from '@/controllers/RekapanGuru/RekapanGuruController'
 
 const router = Router()
 
-router.get('/guru', getRekapanGuru)
+router.get('/guru', getAllRekapanGuruController)
 
 export default router
