@@ -4,6 +4,7 @@ interface PaginationInterface<T> {
 }
 
 export class Pagination {
+  [x: string]: number
   page: number
   limit: number
   offset: number

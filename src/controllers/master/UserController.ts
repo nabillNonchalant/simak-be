@@ -17,13 +17,15 @@ const UserController = {
         parseInt(req.query.limit as string),
       )
 
-      const userLogin = req.user
+      const reqQuery = req.query
 
-      console.log(userLogin?.role)
-
+      
       const whereCondition = {
         deletedAt: null,
-        roleId: 3,
+      } as any
+      
+      if (reqQuery.roleId){
+        whereCondition.roleId = Number(reqQuery.roleId)
       }
 
       const [userData, count] = await Promise.all([
