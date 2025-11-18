@@ -12,7 +12,7 @@ export const getRekapanGuruService = async (page: Pagination, id?: number) => {
 
   const guruList = await prisma.user.findMany({
     where,
-    skip: page.skip ?? (page.page ? (page.page - 1) * page.limit : 0),
+    skip: page.offset,
     take: page.limit,
     orderBy: { id: 'desc' },
     include: {
@@ -44,8 +44,42 @@ export const getRekapanGuruService = async (page: Pagination, id?: number) => {
     }
   })
 
+  const totalSummary = {
+    hadir: 0,
+    izin: 0,
+    sakit: 0,
+    alfa: 0,
+  }
+
+  formatted.forEach((g: any) => {
+    totalSummary.hadir += g.statistik.hadir
+    totalSummary.izin += g.statistik.izin
+    totalSummary.sakit += g.statistik.sakit
+    totalSummary.alfa += g.statistik.alfa
+  })
+
+  const [
+    totalGuruHadir,
+    totalGuruIzin,
+    totalGuruSakit,
+    totalGuruAlfa,
+  ] = await Promise.all([
+    prisma.absensiGuru.count({ where: { status: 'HADIR' } }),
+    prisma.absensiGuru.count({ where: { status: 'IZIN' } }),
+    prisma.absensiGuru.count({ where: { status: 'SAKIT' } }),
+    prisma.absensiGuru.count({ where: { status: 'ALFA' } }),
+  ])
+
+
   return {
+
+    totalGuruHadir,
+    totalGuruIzin,
+    totalGuruSakit,
+    totalGuruAlfa,
+
     count,
     rows: formatted,
+    total: totalSummary,
   }
 }
