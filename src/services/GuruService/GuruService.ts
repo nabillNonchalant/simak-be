@@ -2,49 +2,36 @@ import prisma from '@/config/database'
 import { Pagination } from '@/utilities/Pagination'
 
 export const getRekapanGuruService = async (page: Pagination, id?: number) => {
-
-  const whereCondition: any = {
-    deletedAt: null,
-    roleId: 3,
+  const where: any = {
+    role: { roleType: 'GURU' },
   }
 
-  // Jika ada filter ID → tambahkan ke where
-  if (id) {
-    whereCondition.id = id
-  }
+  if (id) where.id = id
 
-  const [guruList, count] = await Promise.all([
-    prisma.user.findMany({
-      where: whereCondition,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        gender: true,
-        nipNisn: true,
-        absensiGuru: {
-          select: {
-            status: true,
-            createdAt: true,
-          },
+  const count = await prisma.user.count({ where })
+
+  const guruList = await prisma.user.findMany({
+    where,
+    skip: page.skip ?? (page.page ? (page.page - 1) * page.limit : 0),
+    take: page.limit,
+    orderBy: { id: 'desc' },
+    include: {
+      jadwalGuru: {
+        include: {
+          absensiGuru: true,
         },
       },
-      skip: page.offset,
-      take: page.limit,
-      orderBy: { id: 'desc' },
-    }),
-
-    prisma.user.count({
-      where: whereCondition,
-    }),
-  ])
+    },
+  })
 
   const formatted = guruList.map((guru: any) => {
+    const allAbsensi = guru.jadwalGuru.flatMap((j: any) => j.absensiGuru)
+
     const summary = {
-      hadir: guru.absensiGuru.filter((a: any) => a.status === 'HADIR').length,
-      izin: guru.absensiGuru.filter((a: any) => a.status === 'IZIN').length,
-      sakit: guru.absensiGuru.filter((a: any) => a.status === 'SAKIT').length,
-      alfa: guru.absensiGuru.filter((a: any) => a.status === 'ALFA').length,
+      hadir: allAbsensi.filter((a: any) => a.status === 'HADIR').length,
+      izin: allAbsensi.filter((a: any) => a.status === 'IZIN').length,
+      sakit: allAbsensi.filter((a: any) => a.status === 'SAKIT').length,
+      alfa: allAbsensi.filter((a: any) => a.status === 'ALFA').length,
     }
 
     return {

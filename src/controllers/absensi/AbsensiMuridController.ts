@@ -11,7 +11,7 @@ const AbsensiMuridController = {
         parseInt(req.query.limit as string) || 100,
       )
 
-      const whereCondition: any = { deleteAt: null }
+      const whereCondition: any = { deleteAt: null, roleId: 1 }
 
       const absensiMurid = await prisma.absensiMurid.findMany({
         where: whereCondition,
@@ -64,7 +64,7 @@ const AbsensiMuridController = {
   createAbsensiMurid: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
-      const { status, type, keterangan } = req.body
+      const { status, type, keterangan, userId } = req.body
 
       if (!status || !type || !keterangan) {
         return ResponseData.badRequest(res, 'Missing required fields')
@@ -85,7 +85,7 @@ const AbsensiMuridController = {
           status,   
           type,
           keterangan,
-          muridId: userLogin.id,  
+          muridId: userId != null ? userId : userLogin.id,  
           jadwalGuruId: req.body.jadwalGuruId,
         },
       })

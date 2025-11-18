@@ -3,7 +3,6 @@ import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
 import { getRekapanMuridService } from '@/services/MuridService/MuridService'
 
-
 export const getAllRekapanMuridController = async (req: Request, res: Response) => {
   try {
     const page = new Pagination(

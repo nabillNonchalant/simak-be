@@ -10,10 +10,10 @@ export const getAllRekapanGuruController = async (req: Request, res: Response) =
       Number(req.query.limit),
     )
 
-    // Ambil filter id jika ada
+
     const id = req.query.id ? Number(req.query.id) : undefined
 
-    // Kirim 2 parameter (page, id)
+
     const result = await getRekapanGuruService(page, id)
 
     return ResponseData.ok(
