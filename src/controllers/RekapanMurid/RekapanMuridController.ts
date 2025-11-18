@@ -10,15 +10,25 @@ export const getAllRekapanMuridController = async (req: Request, res: Response) 
       Number(req.query.limit),
     )
 
-
     const id = req.query.id ? Number(req.query.id) : undefined
-
 
     const result = await getRekapanMuridService(page, id)
 
+    // pisahkan data yang akan di-paginate
+    const paginated = page.paginate({
+      count: result.count,
+      rows: result.rows,
+    })
+
     return ResponseData.ok(
       res,
-      page.paginate(result),
+      {
+        // total absensi global
+        ...result.total,
+
+        // hasil paginasi
+        ...paginated,
+      },
       'Success get all rekapan murid',
     )
 

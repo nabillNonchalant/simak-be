@@ -4,30 +4,64 @@ import { Pagination } from '@/utilities/Pagination'
 export const getRekapanMuridService = async (page: Pagination, id?: number) => {
   const where: any = {
     role: {
-      roleType: 'OTHER', // murid = OTHER
+      roleType: 'OTHER',
     },
   }
 
   if (id) where.id = id
 
-  // total data
   const count = await prisma.user.count({ where })
 
-  // data rows
-  const rows = await prisma.user.findMany({
+
+  const muridList = await prisma.user.findMany({
     where,
-    skip: (page as any).skip ?? ((page as any).page ? ((page as any).page - 1) * page.limit : 0),
+    skip: page.offset,
     take: page.limit,
-    select: {
-      id: true,
-      name: true,
-      gender: true,
-      nipNisn: true,
-      nomerTelepon: true,
-      tanggalLahir: true,
-      status: true,
+    orderBy: { id: 'desc' },
+    include: {
+      absensiMurid: true,
     },
   })
 
-  return { count, rows }
+  const formatted = muridList.map((m: any) => {
+    const absensi = m.absensiMurid
+
+    const summary = {
+      hadir: absensi.filter((a: any) => a.status === 'HADIR').length,
+      izin: absensi.filter((a: any) => a.status === 'IZIN').length,
+      sakit: absensi.filter((a: any) => a.status === 'SAKIT').length,
+      alfa: absensi.filter((a: any) => a.status === 'ALFA').length,
+    }
+
+    return {
+      id: m.id,
+      name: m.name,
+      gender: m.gender,
+      nipNisn: m.nipNisn,
+      nomerTelepon: m.nomerTelepon,
+      tanggalLahir: m.tanggalLahir,
+      status: m.status,
+      statistik: summary,
+    }
+  })
+
+  const total = {
+    totalMuridHadir: 0,
+    totalMuridIzin: 0,
+    totalMuridSakit: 0,
+    totalMuridAlfa: 0,
+  }
+
+  formatted.forEach((m: any) => {
+    total.totalMuridHadir += m.statistik.hadir
+    total.totalMuridIzin += m.statistik.izin
+    total.totalMuridSakit += m.statistik.sakit
+    total.totalMuridAlfa += m.statistik.alfa
+  })
+
+  return {
+    count,
+    rows: formatted,
+    total,
+  }
 }

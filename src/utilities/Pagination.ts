@@ -4,13 +4,13 @@ interface PaginationInterface<T> {
 }
 
 export class Pagination {
-  [x: string]: number
+
   page: number
   limit: number
   offset: number
+  skip!: number
 
   constructor(page: number | string, size: number | string) {
-    // pastikan page selalu minimal 1
     const parsedPage = parseInt(page as string)
     this.page = parsedPage > 0 ? parsedPage : 1
 
@@ -20,16 +20,9 @@ export class Pagination {
     this.offset = (this.page - 1) * this.limit
   }
 
-  /**
-   * Paginate the data based on the provided pagination interface.
-   * Adds automatic numbering for each item.
-   * @param data - The data to paginate, which includes count and rows.
-   * @returns An object containing pagination details.
-   */
   paginate<T extends object>(data: PaginationInterface<T>): any {
     const totalPages = Math.ceil(data.count / this.limit)
 
-    // tambahkan nomor urut otomatis untuk setiap item
     const itemsWithIndex = data.rows.map((item, index) => ({
       no: this.offset + index + 1,
       ...item,

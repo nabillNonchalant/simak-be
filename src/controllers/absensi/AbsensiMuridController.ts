@@ -11,7 +11,12 @@ const AbsensiMuridController = {
         parseInt(req.query.limit as string) || 100,
       )
 
-      const whereCondition: any = { deleteAt: null, roleId: 1 }
+      const whereCondition = {
+        deleteAt: null,
+        user: {
+          roleId: 1,
+        },
+      }
 
       const absensiMurid = await prisma.absensiMurid.findMany({
         where: whereCondition,
