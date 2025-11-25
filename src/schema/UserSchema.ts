@@ -4,6 +4,9 @@ export const UserSchemaForCreate = z.object({
   name: z.string(),
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal harus 6 karakter'),
+  gender: z.string(),
+  nipNisn: z.string(),
+  tanggalLahir: z.string(),
   roleId: z.number(),
 })
 

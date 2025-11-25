@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities/Response'
 import { Pagination } from '@/utilities/Pagination'
+import { number } from 'zod/v4'
 
 const ScheduleTeacherController = {
 
@@ -12,12 +13,21 @@ const ScheduleTeacherController = {
         parseInt(req.query.limit as string) || 100,
       )
 
-      const whereCondition: any = { deleteAt: null }
+      const whereCondition: any = { deleteAt: null } as any
+
+      if(req.query.hari){
+        whereCondition.hari = req.query.hari  
+      }
+
+      if(req.query.userId){
+        whereCondition.userId = Number(req.query.userId)
+      }
 
       const jadwalGuru = await prisma.jadwalGuru.findMany({
         where: whereCondition,
         include: {
-          absensiGuru: true,
+          user: true,
+          kelas: true,
         },
         skip: page.offset,
         take: page.limit,
@@ -33,8 +43,6 @@ const ScheduleTeacherController = {
       return ResponseData.ok(res, {
         message: 'Berhasil mengambil semua data jadwal guru',
         page: page.paginate({ count: total, rows: jadwalGuru }),
-
-        rows: jadwalGuru,
 
       })
     } catch (error: any) {
@@ -68,9 +76,9 @@ const ScheduleTeacherController = {
   createJadwalGuru: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
-      const { tahunAjaran, mataPelajaran, classId } = req.body
+      const { tahunAjaran, mataPelajaran, hari, classId } = req.body
 
-      if (!tahunAjaran || !mataPelajaran || !classId) {
+      if (!tahunAjaran || !mataPelajaran || !hari || !classId ) {
         return ResponseData.badRequest(res, 'Missing required fields')
       }
 
@@ -79,6 +87,7 @@ const ScheduleTeacherController = {
           tahunAjaran,
           mataPelajaran,
           classId,
+          hari: hari.toLowerCase(),
           userId: userLogin.id,
         },
       })

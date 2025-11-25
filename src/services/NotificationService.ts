@@ -105,6 +105,7 @@ const NotificationServices = {
         data: {
           type: data.type,
           refId: data.refId ? String(data.refId) : null,
+          title:'notifikasi baru',
           message: data.message,
           recipients: {
             createMany: {

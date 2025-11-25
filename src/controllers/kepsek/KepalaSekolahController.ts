@@ -13,18 +13,49 @@ const KepalaSekolahController = {
     }
 
     try {
-      const pendingUsers = await prisma.user.findMany({
-        where: { status: 'menunggu' },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: { select: { name: true } },
-          createdAt: true,
-        },
-      })
+      const page = Number(req.query.page) || 1
+      const limit = Number(req.query.limit) || 10
+      const skip = (page - 1) * limit
 
-      return ResponseData.ok(res, pendingUsers, 'login menunggu verifikasi')
+      const [pendingUsers, total] = await Promise.all([
+        prisma.user.findMany({
+          where: {
+            status: 'menunggu',
+            role: {
+              roleType: 'GURU',
+            },
+          },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: { select: { name: true, roleType: true } },
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.user.count({
+          where: {
+            status: 'menunggu',
+            role: {
+              roleType: 'GURU',
+            },
+          },
+        }),
+      ])
+
+      return ResponseData.ok(res,
+        {
+          rows: pendingUsers,
+          total,
+          page,
+          totalPage: Math.ceil(total / limit),
+        },
+        'Daftar guru menunggu verifikasi',
+      )
+
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
@@ -41,15 +72,38 @@ const KepalaSekolahController = {
     try {
       const user = await prisma.user.update({
         where: { id: Number(userId) },
-        data: { status: 'disetujui' },
+        data: { status: 'setujui' },
+        include: { role: true },
+      })
+
+      const notification = await prisma.notification.create({
+        data: {
+          type: 'ACCOUNT_APPROVAL',
+          title: 'Akun Disetujui',
+          message: 'Selamat! Akun Anda telah diverifikasi oleh Kepala Sekolah.',
+        },
+      })
+
+      // Simpan notifikasi ke user penerima
+      await prisma.notificationUser.create({
+        data: {
+          userId: user.id,
+          notificationId: notification.id, // WAJIB !
+          title: notification.title,
+          message: notification.message,
+          deliveredAt: new Date(),
+        },
       })
 
       await logActivity(userLogin.id, 'UPDATE', `Menyetujui akun ${user.email}`)
-      return ResponseData.ok(res, user, 'Akun berhasil diferivikasi')
+
+      return ResponseData.ok(res, user, 'Akun berhasil diverifikasi')
+
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
+
 
   rejectUser: async (req: Request, res: Response) => {
     const userLogin = req.user as jwtPayloadInterface
