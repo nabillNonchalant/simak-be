@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities/Response'
 import { Pagination } from '@/utilities/Pagination'
-import { number } from 'zod/v4'
+// import { number } from 'zod/v4'
 
 const AbsensiGuruController = {
   getAllAbsensiguru: async (req: Request, res: Response): Promise<any> => {

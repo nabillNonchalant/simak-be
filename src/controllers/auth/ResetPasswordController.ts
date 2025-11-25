@@ -4,41 +4,39 @@ import { Request, Response } from 'express'
 
 const ResetPasswordController = {
   resetPassword: async (req: Request, res: Response) => {
-    const { email, otp, newPassword } = req.body
+    const { resetToken, newPassword } = req.body
 
     try {
-      if (!email || !otp || !newPassword) {
+      if (!resetToken || !newPassword) {
         return res.status(400).json({ message: 'Lengkapi semua field' })
       }
 
       const otpRecord = await prisma.otp.findFirst({
-        where: { email, otp },
+        where: { otp: resetToken },
       })
 
       if (!otpRecord) {
-        return res.status(400).json({ message: 'OTP salah' })
+        return res.status(400).json({ message: 'Token reset tidak valid' })
       }
 
       if (otpRecord.expiredAt < new Date()) {
-        return res.status(400).json({ message: 'OTP kadaluwarsa' })
+        return res.status(400).json({ message: 'Token kadaluwarsa' })
       }
 
-      const hashed = await bcrypt.hash(newPassword, 10)
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
 
       await prisma.user.update({
-        where: { email },
-        data: { password: hashed },
+        where: { email: otpRecord.email },
+        data: { password: hashedPassword },
       })
 
-      // Hapus OTP setelah digunakan
       await prisma.otp.delete({
         where: { id: otpRecord.id },
       })
 
       return res.json({ message: 'Password berhasil direset' })
-      
     } catch (error) {
-      console.error(error)
+      console.error('[RESET PASSWORD ERROR]:', error)
       return res.status(500).json({ message: 'Server error' })
     }
   },

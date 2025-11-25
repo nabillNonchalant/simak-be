@@ -3,15 +3,15 @@ import { Request, Response } from 'express'
 
 const VerifyOtpController = {
   verifyOtp: async (req: Request, res: Response) => {
-    const { email, otp } = req.body
+    const { otp } = req.body
 
     try {
-      if (!email || !otp) {
+      if (!otp) {
         return res.status(400).json({ message: 'Email dan OTP wajib diisi' })
       }
 
       const otpRecord = await prisma.otp.findFirst({
-        where: { email, otp },
+        where: { otp },
       })
 
       if (!otpRecord) {

@@ -69,7 +69,7 @@ async function seedFromReverse() {
 
 async function main() {
   // Parsing arguments from command line
-  // Example: node src/db/seeder/index.js ::seed=user
+  // Example: node src/db/seeder/.js ::seed=user
   const argsObj = parsingArgs(['::seed', '::seed_from_reverse'])
   if (argsObj.seed_from_reverse) {
     console.log('Running reverse seeders...')

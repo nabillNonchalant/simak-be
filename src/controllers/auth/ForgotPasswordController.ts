@@ -36,7 +36,7 @@ const ForgotPasswordController = {
 
       console.log('OTP:', otp)
 
-      return res.json({ message: 'OTP terkirim ke email anda' })
+      return res.status(200).json({ message: 'OTP terkirim ke email anda' })
 
     } catch (error) {
       console.error(error)

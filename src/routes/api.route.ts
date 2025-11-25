@@ -53,6 +53,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   
   // auth route
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
+  app.use(CONFIG.apiUrl + 'password',ForgotPasswordRouter)
 
   // product route
   app.use(AuthMiddleware, generatePermissionList)
@@ -82,7 +83,6 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'dashboard', dashboardRouter)
   app.use(CONFIG.apiUrl + 'rekapan', guruRouter)
   app.use(CONFIG.apiUrl + 'rekapan', getAllRekapanMuridrouter)
-  app.use(CONFIG.apiUrl + 'password',ForgotPasswordRouter)
 
 }
 
