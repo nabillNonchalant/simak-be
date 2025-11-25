@@ -33,6 +33,7 @@ const UserController = {
           where: whereCondition,
           include: {
             jadwalGuru: true,
+            kelas: true,
           },
           skip: page.offset,
           take: page.limit,
@@ -60,6 +61,10 @@ const UserController = {
       const userId = parseInt(req.params.id as string)
       const userData = await prisma.user.findUnique({
         where: { id: userId },
+        include: {
+          jadwalGuru: true,
+          kelas: true,
+        },
       })
 
       if (!userData) {
@@ -99,9 +104,26 @@ const UserController = {
 
       validationResult.data!.password = await hashPassword(reqBody.password)
 
+      let tanggalLahir: Date | null = null
+
+      if (validationResult.data!.tanggalLahir) {
+        const tempDate = new Date(validationResult.data!.tanggalLahir)
+        if (isNaN(tempDate.getTime())) {
+          return ResponseData.badRequest(res, 'Tanggal lahir tidak valid')
+        }
+        tanggalLahir = tempDate
+      }
+
       const userData = await prisma.user.create({
-        data: validationResult.data!,
+        data: {
+          ...validationResult.data!,
+          tanggalLahir,
+          classId: reqBody.classId as number,
+        
+
+        },
       })
+
 
       // soket create user
       getIO().emit('create-user', userData)
@@ -284,6 +306,7 @@ const UserController = {
   updateStatus: async (req: Request, res: Response): Promise<any> => {
     try {
       const userId = parseInt(req.params.id as string)
+      const status= req.body.status
 
       const userData = await prisma.user.findUnique({
         where: { id: userId },
@@ -294,7 +317,7 @@ const UserController = {
       } 
       const updateStatus = await prisma.user.update({
         where: { id: userId },
-        data: { status: userData.status === 'menunggu' ? 'setujui' : 'menunggu' },
+        data: { status: status },
       })
       return ResponseData.ok(res, updateStatus, 'Success')
     } catch (error: any) {

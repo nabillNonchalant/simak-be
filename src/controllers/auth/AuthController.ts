@@ -96,6 +96,12 @@ const AuthController = {
       if (!passwordMatch) {
         return ResponseData.unauthorized(res, 'Password not match')
       }
+      if (userData.role.roleType === 'GURU' && userData.status !== 'setujui') {
+        return ResponseData.unauthorized(
+          res,
+          'Akun Anda belum diverifikasi oleh Kepala Sekolah. Silahkan tunggu persetujuan.',
+        )
+      }
 
       // test
       const tokenPayload = {

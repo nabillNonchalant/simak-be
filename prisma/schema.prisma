@@ -54,6 +54,8 @@ model User {
   nipNisn              String?
   nomerTelepon         String?               @unique
   tanggalLahir         DateTime?
+  classId              Int?
+  kelas                MasterClass?          @relation(fields: [classId], references: [id], onDelete: Cascade)
   status               String?               @default("menunggu") //Setujui or menunggu
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -103,27 +105,26 @@ model Notification {
   type      String
   refId     String?
   message   String
+  title     String
   createdAt DateTime @default(now())
 
-  // Hapus usersId Int[] dan readStatus global
-  recipients NotificationUser[] // relasi ke receipt
+  recipients NotificationUser[]
 }
 
 model NotificationUser {
-  // Join table (receipt)
   id             Int @id @default(autoincrement())
   userId         Int
   notificationId Int
-
-  // status per user
-  readStatus  Boolean   @default(false)
-  readAt      DateTime?
-  deliveredAt DateTime?
+  title     String
+  message   String
+  readStatus     Boolean   @default(false)
+  readAt         DateTime?
+  deliveredAt    DateTime?
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, notificationId]) // satu baris per user x notif
+  @@unique([userId, notificationId])
   @@index([userId, readStatus])
   @@index([notificationId])
 }
@@ -149,6 +150,7 @@ model JadwalGuru {
   userId        Int
   tahunAjaran   String?
   mataPelajaran String?
+  hari          String?
   classId       Int
   kelas         MasterClass @relation(fields: [classId], references: [id], onDelete: Cascade)
   createdAt     DateTime    @default(now())
@@ -158,6 +160,8 @@ model JadwalGuru {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   absensiGuru AbsensiGuru[]
+
+  absensiMurids AbsensiMurid[]
 }
 
 enum StatusAbsensi {
@@ -186,6 +190,7 @@ model AbsensiGuru {
 model AbsensiMurid {
   id           Int           @id @default(autoincrement())
   jadwalGuruId Int
+  jadwalGuru   JadwalGuru    @relation(fields: [jadwalGuruId], references: [id], onDelete: Cascade)
   muridId      Int
   status       StatusAbsensi
   type         String?
@@ -206,4 +211,5 @@ model MasterClass {
   deleteAt  DateTime?
 
   jadwalGuru JadwalGuru[]
+  user       User[]
 }

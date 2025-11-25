@@ -69,37 +69,68 @@ const AbsensiMuridController = {
   createAbsensiMurid: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
-      const { status, type, keterangan, userId } = req.body
+      const { status, type, keterangan, userId, jadwalGuruId } = req.body
 
-      if (!status || !type || !keterangan) {
+      if (!status || !type || !keterangan || !jadwalGuruId) {
         return ResponseData.badRequest(res, 'Missing required fields')
       }
 
       const schedule = await prisma.jadwalGuru.findFirst({
-        where:{
-          id: req.body.jadwalGuruId as number,
-        },
+        where: { id: jadwalGuruId },
       })
 
-      if(!schedule){
+      if (!schedule) {
         return ResponseData.notFound(res, 'Jadwal Not Found')
       }
 
-      const newAbsensiMurid= await prisma.absensiMurid.create({
-        data: {
-          status,   
-          type,
-          keterangan,
-          muridId: userId != null ? userId : userLogin.id,  
-          jadwalGuruId: req.body.jadwalGuruId,
+      const muridId = userId != null ? userId : userLogin.id
+
+
+      const now = new Date()
+      const startOfDay = new Date(now)
+      const endOfDay = new Date(now)
+      startOfDay.setHours(0, 0, 0, 0)
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const existingAbsensi = await prisma.absensiMurid.findFirst({
+        where: {
+          muridId: muridId,
+          jadwalGuruId: jadwalGuruId,
+          createdAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          deleteAt: null,
         },
       })
 
-      return ResponseData.created(res, newAbsensiMurid, 'Absensi created successfully')
+      if (existingAbsensi) {
+        return ResponseData.badRequest(
+          res,
+          'Murid sudah melakukan absensi pada jadwal ini hari ini',
+        )
+      }
+
+      const newAbsensiMurid = await prisma.absensiMurid.create({
+        data: {
+          status,
+          type,
+          keterangan,
+          muridId: muridId,
+          jadwalGuruId,
+        },
+      })
+
+      return ResponseData.created(
+        res,
+        newAbsensiMurid,
+        'Absensi created successfully',
+      )
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
   },
+
 
   updateAbsensiMurid: async (req: Request, res: Response) => {
     try {

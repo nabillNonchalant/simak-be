@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities/Response'
 import { Pagination } from '@/utilities/Pagination'
+import { number } from 'zod/v4'
 
 const AbsensiGuruController = {
   getAllAbsensiguru: async (req: Request, res: Response): Promise<any> => {
@@ -12,6 +13,7 @@ const AbsensiGuruController = {
       )
 
       const whereCondition: any = { deleteAt: null }
+
 
       const absensiGuru = await prisma.absensiGuru.findMany({
         where: whereCondition,
@@ -65,20 +67,46 @@ const AbsensiGuruController = {
   createAbsensiGuru: async (req: Request, res: Response) => {
     try {
       const userLogin = req.user as jwtPayloadInterface
-      const { jadwalGuruId, type, document, keterangan, status } = req.body
+      const { jadwalGuruId, type, document, keterangan, status, userId } = req.body
 
-      if (!type || !keterangan || !document || !status) {
-        return ResponseData.badRequest(res, 'Missing required fields')
-      }
+      // // if (!type || !keterangan || !document || !status || !jadwalGuruId || !userId ) {
+      // //   // return ResponseData.badRequest(res, 'Missing required fields')
+      // }
 
       const schedule = await prisma.jadwalGuru.findFirst({
-        where:{
-          id: req.body.jadwalGuruId as number,
+        where: {
+          id: Number(jadwalGuruId),
         },
       })
 
-      if(!schedule){
-        return ResponseData.notFound(res, 'Jadwal Not Found')}
+      if (!schedule) {
+        return ResponseData.notFound(res, 'Jadwal Not Found')
+      }
+
+      const now = new Date()
+      const startOfDay = new Date(now)
+      const endOfDay = new Date(now)
+      startOfDay.setHours(0, 0, 0, 0)
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const existingAbsensi = await prisma.absensiGuru.findFirst({
+        where: {
+          userId: Number(userId),
+          jadwalGuruId: Number(jadwalGuruId),
+          createdAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          deleteAt: null,
+        },
+      })
+
+      if (existingAbsensi) {
+        return ResponseData.badRequest(
+          res,
+          'Guru sudah melakukan absensi untuk jadwal ini hari ini',
+        )
+      }
 
       const newAbsensi = await prisma.absensiGuru.create({
         data: {
@@ -87,7 +115,7 @@ const AbsensiGuruController = {
           keterangan,
           document,
           status,
-          userId: userLogin.id,
+          userId: Number(userId),
         },
       })
 
