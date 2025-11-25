@@ -115,8 +115,8 @@ model NotificationUser {
   id             Int @id @default(autoincrement())
   userId         Int
   notificationId Int
-  title     String
-  message   String
+  title     String?
+  message   String?
   readStatus     Boolean   @default(false)
   readAt         DateTime?
   deliveredAt    DateTime?
