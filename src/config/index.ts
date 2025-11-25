@@ -13,6 +13,11 @@ export const CONFIG = {
   baseUrl: process.env.BASE_URL || "http://localhost:3000",
   apiUrl: process.env.API_URL || "/api/",
 
+  mailUser: process.env.MAIL_USER || "your@gmail.com",
+  mailPass: process.env.MAIL_PASS || "your-email-password",
+
+  mailFrom: "SIMAK App <your@gmail.com>",
+
   client : {
     url : process.env.CLIENT_URL || "http://localhost:3000",
     callBackGoogleOAuth : process.env.CLIENT_CALLBACK_GOOGLE_OAUTH_URL || "http://localhost:3000",
