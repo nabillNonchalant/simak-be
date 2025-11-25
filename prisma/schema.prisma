@@ -213,3 +213,12 @@ model MasterClass {
   jadwalGuru JadwalGuru[]
   user       User[]
 }
+
+model otp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  expiredAt DateTime
+  createdAt DateTime @default(now())
+}
+

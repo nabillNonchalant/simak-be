@@ -24,6 +24,7 @@ import KepalaSekolahRouter from './kepsek/KepalaSekolahRoutes'
 import dashboardRouter from './Dashboard/DasboardRoutes'
 import guruRouter from './RekapanGuru/RekapanGuruRoutes'
 import getAllRekapanMuridrouter from './RekapanMurid/RekapanMuridRoutes'
+import ForgotPasswordRouter from './auth/ForgotPasswordrouter'
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
 //   allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
@@ -81,5 +82,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'dashboard', dashboardRouter)
   app.use(CONFIG.apiUrl + 'rekapan', guruRouter)
   app.use(CONFIG.apiUrl + 'rekapan', getAllRekapanMuridrouter)
+  app.use(CONFIG.apiUrl + 'password',ForgotPasswordRouter)
+
 }
 

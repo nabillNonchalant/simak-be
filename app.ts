@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import express, { type Express } from 'express'
+
+import express, { Express } from 'express'
 import cors from 'cors'
-import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import http from 'http'
 import parsingArgs from '@/utilities/ParseArgs'
@@ -16,59 +16,61 @@ import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
 import { initWebPush } from '@/config/webPush'
 import { MasterClassRouter } from './src/routes/masterclass/MasterClassRoute'
-
-
+import path from 'path'
 
 process.env.TZ = 'Asia/Jakarta'
 
+// Parse args
 const argsObj = parsingArgs(['::port'])
-
 if (argsObj.port) {
-  if (isNaN(Number(argsObj.port))) {
-    console.error('Port must be a number')
+  const portNumber = Number(argsObj.port)
+  if (isNaN(portNumber) || portNumber < 0 || portNumber > 65535) {
+    console.error('Port must be a number between 0-65535')
     process.exit(1)
   }
-  if (Number(argsObj.port) < 0 || Number(argsObj.port) > 65535) {
-    console.error('Port must be between 0 and 65535')
-    process.exit(1)
-  }  
-  CONFIG.port = Number(argsObj.port)
+  CONFIG.port = portNumber
 }
 
 const app: Express = express()
 const server = http.createServer(app)
 const io = init(server)
 
+// === GLOBAL MIDDLEWARE ===
 app.use(cors({ origin: true, credentials: true }))
-// app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
-app.use(bodyParser.json())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(passport.initialize())
-app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
 
-app.use(function (req, res, next) {
+// Static Files
+app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')))
+app.use('/public', express.static('public'))
+
+// CORS Header Fallback
+app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next()
 })
 
-
+// === SOCKET ===
 handleSocketEvents(io)
-if (CONFIG.pushNotif) {
-  initWebPush()
-}
 
+// Web Push Init
+if (CONFIG.pushNotif) initWebPush()
 
+// Response Middleware
 app.use(ResponseMiddleware)
 
-app.use('/public', express.static('public'))
-
+// Routers
+app.use(CONFIG.apiUrl + 'class', MasterClassRouter())
 appRouter(app)
 
+// Error Handling
 app.all('*', notFoundMiddleware)
 app.use(errorMiddleware)
 
+// Start Server
 server.listen(CONFIG.port, () => {
-  console.log(`Server running on port ${CONFIG.port}`)
+  console.log(`🚀 Server running on port ${CONFIG.port}`)
 })

@@ -66,12 +66,14 @@ const AbsensiGuruController = {
 
   createAbsensiGuru: async (req: Request, res: Response) => {
     try {
-      const userLogin = req.user as jwtPayloadInterface
-      const { jadwalGuruId, type, document, keterangan, status, userId } = req.body
+      const { jadwalGuruId, type, keterangan, status, userId } = req.body
+      const document = req.file ? req.file.filename : null
 
-      // // if (!type || !keterangan || !document || !status || !jadwalGuruId || !userId ) {
-      // //   // return ResponseData.badRequest(res, 'Missing required fields')
+      // // if (!type || !keterangan || !document || !status || !jadwalGuruId || !userId) {
+      // //   return ResponseData.badRequest(res, 'Missing required fields')
       // }
+
+      console.log(jadwalGuruId)
 
       const schedule = await prisma.jadwalGuru.findFirst({
         where: {
@@ -93,10 +95,7 @@ const AbsensiGuruController = {
         where: {
           userId: Number(userId),
           jadwalGuruId: Number(jadwalGuruId),
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
+          createdAt: { gte: startOfDay, lte: endOfDay },
           deleteAt: null,
         },
       })
@@ -124,6 +123,7 @@ const AbsensiGuruController = {
       return ResponseData.serverError(res, error)
     }
   },
+
 
   updateAbsensiGuru: async (req: Request, res: Response) => {
     try {
