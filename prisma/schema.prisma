@@ -222,3 +222,11 @@ model otp {
   createdAt DateTime @default(now())
 }
 
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  email     String
+  token     String   @unique
+  expiredAt DateTime
+  createdAt DateTime @default(now())
+}
+

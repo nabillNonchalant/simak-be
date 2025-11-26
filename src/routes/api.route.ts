@@ -25,37 +25,40 @@ import dashboardRouter from './Dashboard/DasboardRoutes'
 import guruRouter from './RekapanGuru/RekapanGuruRoutes'
 import getAllRekapanMuridrouter from './RekapanMurid/RekapanMuridRoutes'
 import ForgotPasswordRouter from './auth/ForgotPasswordrouter'
-// const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
-//   maxFileSize: CONFIG.maxFileSize as number,
-//   allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
-//   // saveToBucket: CONFIG.saveToBucket,
-// })
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
-  maxFileSize : 10 * 1024 * 1024, // 10MB
-  allowedFileTypes : ['image/gif', 'image/jpeg','image/jpg', 'image/png', 'image/webp'],
-  saveToBucket : true,
+  maxFileSize: 10 * 1024 * 1024, // 10MB
+  allowedFileTypes: ['image/gif', 'image/jpeg','image/jpg', 'image/png', 'image/webp'],
+  saveToBucket: true,
 })
 
 export const appRouter = async function (app: Express): Promise<void> {
+
+  // ROOT
   app.get('/', (req: Request, res: Response) => {
     const data = {
-      buildInfo : getBuildInfo(),
+      buildInfo: getBuildInfo(),
       message: `Welcome to ${CONFIG.appName} for more function use ${CONFIG.apiUrl} as main router`,
     }
     return ResponseData.ok(res, data, 'Welcome to API')
   })
 
+  // TEST ROUTES
   app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('gambar'), TestController.testFileUploadToS3)
   app.post(CONFIG.apiUrl + 'test-up-delete', fileUpload.single('images'), TestController.deleteFileFromS3)
   app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
 
-  
-  // auth route
-  app.use(CONFIG.apiUrl + 'auth', AuthRoute())
-  app.use(CONFIG.apiUrl + 'password',ForgotPasswordRouter)
 
-  // product route
+  // ===========================================
+  // PUBLIC ROUTES (TANPA TOKEN)
+  // ===========================================
+  app.use(CONFIG.apiUrl + 'auth', AuthRoute())
+  app.use(CONFIG.apiUrl + 'password', ForgotPasswordRouter) // forgot, otp, reset password
+
+
+  // ===========================================
+  // PRIVATE ROUTES (WAJIB TOKEN)
+  // ===========================================
   app.use(AuthMiddleware, generatePermissionList)
 
   app.get(CONFIG.apiUrl + 'generate-permission', async (req: Request, res: Response) => {
@@ -63,7 +66,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   })
 
 
-  //web push
+  // web push
   app.use(CONFIG.apiUrl + 'web-push', WebPushNotifRouter())
 
   // notification route
@@ -72,7 +75,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   // log route
   app.use(CONFIG.apiUrl + 'log', LogRouter())
 
-
+  // master & others
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
   app.use(CONFIG.apiUrl + 'master/role', RoleRouter())
   app.use(CONFIG.apiUrl + 'schedule', ScheduleTeacherRouter())
@@ -85,4 +88,3 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'rekapan', getAllRekapanMuridrouter)
 
 }
-
