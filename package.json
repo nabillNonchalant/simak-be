@@ -17,7 +17,7 @@
     "notif": "node scripts/generate-vapid.js --file ./.env",
     "prebuild": "node scripts/generate-build-time.js",
     "build": "tsc && tsc-alias",
-    "start": "node dist/app.js",
+    "start": "nodemon dist/app.js",
     "test": "test",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",

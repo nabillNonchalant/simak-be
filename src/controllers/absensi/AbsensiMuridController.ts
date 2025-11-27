@@ -70,10 +70,11 @@ const AbsensiMuridController = {
     try {
       const userLogin = req.user as jwtPayloadInterface
       const { status, type, keterangan, userId, jadwalGuruId } = req.body
+      console.log (req.body)
 
-      if (!status || !type || !keterangan || !jadwalGuruId) {
-        return ResponseData.badRequest(res, 'Missing required fields')
-      }
+      // if (!status || !type || !keterangan || !jadwalGuruId) {
+      //   return ResponseData.badRequest(res, 'Missing required fields')
+      // }
 
       const schedule = await prisma.jadwalGuru.findFirst({
         where: { id: jadwalGuruId },
