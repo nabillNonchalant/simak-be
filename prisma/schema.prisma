@@ -112,11 +112,11 @@ model Notification {
 }
 
 model NotificationUser {
-  id             Int @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   userId         Int
   notificationId Int
-  title     String?
-  message   String?
+  title          String?
+  message        String?
   readStatus     Boolean   @default(false)
   readAt         DateTime?
   deliveredAt    DateTime?
@@ -214,7 +214,7 @@ model MasterClass {
   user       User[]
 }
 
-model otp {
+model Otp {
   id        Int      @id @default(autoincrement())
   email     String
   otp       String
@@ -229,4 +229,3 @@ model PasswordResetToken {
   expiredAt DateTime
   createdAt DateTime @default(now())
 }
-
